@@ -13,7 +13,11 @@ class CreateSettingsTable extends Migration
 
             $table->string('group')->index();
             $table->string('name');
+<<<<<<< Updated upstream
             $table->boolean('locked')->default(false);
+=======
+            $table->boolean('locked')->default(0);
+>>>>>>> Stashed changes
             $table->json('payload');
 
             $table->timestamps();

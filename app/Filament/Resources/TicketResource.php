@@ -46,12 +46,19 @@ class TicketResource extends Resource
 
     public static function form(Form $form): Form
     {
+        // dd($get);
         return $form
             ->schema([
                 Forms\Components\Card::make()
                     ->schema([
                         Forms\Components\Grid::make()
                             ->schema([
+                                Forms\Components\Select::make('type_id')
+                                            ->label(__('Ticket type'))
+                                            ->searchable()
+                                            ->options(fn() => TicketType::all()->pluck('name', 'id')->toArray())
+                                            ->default(fn() => TicketType::where('is_default', true)->first()?->id)
+                                            ->required(),
                                 Forms\Components\Select::make('project_id')
                                     ->label(__('Project'))
                                     ->searchable()
@@ -76,20 +83,21 @@ class TicketResource extends Resource
                                             );
                                         }
                                     })
-                                    ->options(fn() => Project::where('owner_id', auth()->user()->id)
-                                        ->orWhereHas('users', function ($query) {
-                                            return $query->where('users.id', auth()->user()->id);
-                                        })->pluck('name', 'id')->toArray()
-                                    )
+                                    ->options(fn() => Project::pluck('name', 'id')->toArray())
+                                    // ->options(fn() => Project::where('owner_id', auth()->user()->id)
+                                    //     ->orWhereHas('users', function ($query) {
+                                    //         return $query->where('users.id', auth()->user()->id);
+                                    //     })->pluck('name', 'id')->toArray()
+                                    // )
                                     ->default(fn() => request()->get('project'))
                                     ->required(),
-                                Forms\Components\Select::make('epic_id')
-                                    ->label(__('Epic'))
-                                    ->searchable()
-                                    ->reactive()
-                                    ->options(function ($get, $set) {
-                                        return Epic::where('project_id', $get('project_id'))->pluck('name', 'id')->toArray();
-                                    }),
+                                // Forms\Components\Select::make('epic_id')
+                                //     ->label(__('Epic'))
+                                //     ->searchable()
+                                //     ->reactive()
+                                //     ->options(function ($get, $set) {
+                                //         return Epic::where('project_id', $get('project_id'))->pluck('name', 'id')->toArray();
+                                //     }),
                                 Forms\Components\Grid::make()
                                     ->columns(12)
                                     ->columnSpan(2)
@@ -122,7 +130,7 @@ class TicketResource extends Resource
                                     ->options(fn() => User::all()->pluck('name', 'id')->toArray()),
 
                                 Forms\Components\Grid::make()
-                                    ->columns(3)
+                                    ->columns(2)
                                     ->columnSpan(2)
                                     ->schema([
                                         Forms\Components\Select::make('status_id')
@@ -156,13 +164,6 @@ class TicketResource extends Resource
                                                         ?->id;
                                                 }
                                             })
-                                            ->required(),
-
-                                        Forms\Components\Select::make('type_id')
-                                            ->label(__('Ticket type'))
-                                            ->searchable()
-                                            ->options(fn() => TicketType::all()->pluck('name', 'id')->toArray())
-                                            ->default(fn() => TicketType::where('is_default', true)->first()?->id)
                                             ->required(),
 
                                         Forms\Components\Select::make('priority_id')
